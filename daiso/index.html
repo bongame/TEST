@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>DAISO</title>
+    <script src="Build/daiso.loader.js.js"></script>
+    <script>
+        const buildUrl = "Build";
+const loaderUrl = buildUrl + "/daiso.loader.js.loader.js";
+const config = {
+    dataUrl: buildUrl + "/daiso.loader.js.data",
+    frameworkUrl: buildUrl + "/daiso.loader.js.framework.js",
+    codeUrl: buildUrl + "/daiso.loader.js.wasm",
+    streamingAssetsUrl: "StreamingAssets",
+    companyName: "YourCompany",
+    productName: "YourProduct",
+    productVersion: "1.0",
+};
+
+const container = document.querySelector("#gameContainer");
+createUnityInstance(container, config, (progress) => {
+    console.log(`Loading progress: ${Math.round(progress * 100)}%`);
+}).then((unityInstance) => {
+    console.log("Unity instance created.");
+    // Unity インスタンスが作成された後の処理
+}).catch((message) => {
+    alert(message);
+});
+
+        // var gameInstance = UnityLoader.instantiate("gameContainer", "Build/daiso.loader.js.js");
+
+        function Start() {
+            SpeechRecognition = webkitSpeechRecognition || SpeechRecognition;
+            const recognition = new SpeechRecognition();
+
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            recognition.onnomatch = function () {
+                window.alert("セットアップに失敗しました。ページの再読み込みをしてください。")
+            };
+
+            recognition.onerror = function () {
+                console.log("エラーが発生しました。再接続をします。")
+                Start();
+            };
+
+            recognition.onsoundend = function () {
+                console.log("音声入力が停止しました。再接続します。")
+                Start();
+            }
+
+            recognition.onresult = (event) => {
+                gameInstance.SendMessage('GameManager', 'OnMessage', event.results[event.results.length - 1][0].transcript);
+            };
+
+            recognition.start();
+        }
+
+        Start();
+    </script>
+</head>
+
+<body>
+    <div id="gameContainer" style="width:960;  height: 600; margin: auto"></div>
+</body>
+</html>
